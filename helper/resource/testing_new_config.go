@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/davecgh/go-spew/spew"
+	"github.com/hashicorp/terraform-plugin-sdk/ctytest"
 	"github.com/hashicorp/terraform-plugin-sdk/terraform"
 	tftest "github.com/hashicorp/terraform-plugin-test"
 )
@@ -33,6 +34,13 @@ func testStepNewConfig(t *testing.T, c TestCase, wd *tftest.WorkingDir, step Tes
 		state := getState(t, wd)
 		if step.Check != nil {
 			if err := step.Check(state); err != nil {
+				t.Fatal(err)
+			}
+		}
+
+		if step.CtyCheck != nil {
+			err := ctytest.CtyCheck(state, step.providers["random"], step.CtyCheck)
+			if err != nil {
 				t.Fatal(err)
 			}
 		}
